@@ -1,0 +1,210 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "version": "1.0.0",
+    "title": "Tinybird Pipes",
+    "description": "You can find out more about Tinybird at [http://localhost:8001](tinybird.co).",
+    "termsOfService": "http://localhost:8001/terms",
+    "contact": {
+      "email": "support@tinybird.co"
+    }
+  },
+  "servers": [{
+    "url": "http://localhost:8001/v0"
+  }],
+  "externalDocs": {
+    "description": "Tinybird Analytics documentation",
+    "url": "http://localhost:8000"
+  },
+  "paths": {
+    "/pipes/test_parameters.{format}": {
+      "get": {
+        "tags": ["Pipes"],
+        "summary": "test_endpoint",
+        "description": "",
+        "operationId": "t_437341da3ed046f3a4e512d05502ae48",
+        "parameters": [{
+          "name": "format",
+          "required": true,
+          "in": "path",
+          "description": "Response format: `json` or `csv`",
+          "schema": {
+            "type": "string",
+            "default": "json",
+            "enum": ["json", "csv"]
+          }
+        }, {
+          "in": "query",
+          "name": "a",
+          "schema": {
+            "type": "integer",
+            "default": 0
+          }
+        }, {
+          "in": "query",
+          "name": "description",
+          "schema": {
+            "type": "string",
+            "default": "test_1"
+          }
+        }],
+        "security": [{
+          "Token Bearer Header": ["PIPES:READ:test_parameters", "ADMIN"]
+        }, {
+          "Token QueryString": ["PIPES:READ:test_parameters", "ADMIN"]
+        }],
+        "responses": {
+          "200": {
+            "description": "Pipe data result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiQueryJSONResponse"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiQueryCSVResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequestError"
+          },
+          "401": {
+            "$ref": "#/components/responses/UnauthorizedError"
+          },
+          "403": {
+            "$ref": "#/components/responses/ForbiddenError"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFoundError"
+          },
+          "405": {
+            "$ref": "#/components/responses/MethodNotAllowedError"
+          },
+          "500": {
+            "$ref": "#/components/responses/InternalServerError"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Token Bearer Header": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      },
+      "Token QueryString": {
+        "type": "apiKey",
+        "in": "query",
+        "name": "token"
+      }
+    },
+    "responses": {
+      "BadRequestError": {
+        "description": "Invalid or malformed user input: check your SQL, parameters, and encoding"
+      },
+      "UnauthorizedError": {
+        "description": "Unauthorized request"
+      },
+      "ForbiddenError": {
+        "description": "Access token is missing or invalid: the request does not have enough permissions to be completed"
+      },
+      "NotFoundError": {
+        "description": "Resource not found: the data source, pipe, or endpoint is missing"
+      },
+      "MethodNotAllowedError": {
+        "description": "The method is not allowed in this resource"
+      },
+      "InternalServerError": {
+        "description": "Server could not fulfill the request due to an internal problem: contact support@tinybird.co"
+      }
+    },
+    "schemas": {
+      "ApiQueryJSONResponseMetaItem": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          }
+        }
+      },
+      "ApiQueryJSONResponseDataItem": {
+        "type": "object",
+        "properties": {
+          "any": {
+            "type": "object"
+          }
+        }
+      },
+      "ApiQueryJSONResponseStatistics": {
+        "type": "object",
+        "properties": {
+          "elapsed": {
+            "type": "number"
+          },
+          "rows_read": {
+            "type": "number"
+          },
+          "bytes_read": {
+            "type": "number"
+          }
+        }
+      },
+      "ApiQueryJSONResponse": {
+        "type": "object",
+        "properties": {
+          "meta": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiQueryJSONResponseMetaItem"
+            }
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ApiQueryJSONResponseDataItem"
+            }
+          },
+          "rows": {
+            "type": "number"
+          },
+          "statistics": {
+            "$ref": "#/components/schemas/ApiQueryJSONResponseStatistics"
+          }
+        },
+        "example": {
+          "meta": [{
+            "name": "borough",
+            "type": "String"
+          }, {
+            "name": "total_amount",
+            "type": "Float64"
+          }],
+          "data": [{
+            "borough": "Brooklyn",
+            "total_amount": 12660596.334185183
+          }],
+          "rows": 1,
+          "statistics": {
+            "elapsed": 1.9345e-05,
+            "rows_read": 9710124,
+            "bytes_read": 77680992
+          }
+        }
+      },
+      "ApiQueryCSVResponse": {
+        "type": "string",
+        "format": "csv",
+        "example": "\"borough\",\"total_amount\"\nBrooklyn,12660596.334185183"
+      }
+    }
+  }
+}
